@@ -1,4 +1,5 @@
 import random
+from datetime import datetime
 
 agenda = {}
 
@@ -114,12 +115,27 @@ def buscar_evento():
         print(f"\n--- Evento encontrado ---")
         print(f"Nome: {e['nome']}")
         print(f"Evento: {e['evento']}")
-        print(f"Data: {e['data']}")
+        print(f"Data: {e['data']}") 
         print(f"Local: {e['local']}")
         print(f"Orçamento: R$ {e['orcamento']:.2f}")
         print(f"Orçamento Final: R$ {e['orcamento_final']:.2f}")
         print(f"Convidados: {e['convidados']}")
         print(f"Serviços: {', '.join(e['servicos']) if e['servicos'] else 'Nenhum serviço selecionado'}")
+
+        try:
+            data_evento = datetime.strptime(e['data'], '%d/%m/%y').date()
+            hoje = datetime.now().date()
+
+            dias_restantes = (data_evento-hoje).days
+
+            if dias_restantes > 0:
+                print(f"Faltam:{dias_restantes} dias para o evento.")
+            elif dias_restantes == 0:
+                print("O evento é HOJE!")
+            else:
+                print(f"O evento já ocorreu há {abs(dias_restantes)} dias.")        
+        except ValueError:
+            print("Não foi possível calcular os dias restantes. Formato de data inválido.")    
     else:
         print("ID não encontrado.")
 
