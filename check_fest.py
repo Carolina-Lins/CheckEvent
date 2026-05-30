@@ -30,7 +30,12 @@ def gerar_id():
     return random.randint(10000, 99999)
 
 def calcular_orcamento(servico, orcamento_final):
-     valor_servico = float(input(f"Digite o valor do serviço '{servico}': R$ "))
+  while True:
+    try:
+     valor_servico = input(f"Digite o valor do serviço '{servico}': R$ ")
+     valor_formatado = valor_servico.replace(',', '.')
+
+     valor_servico = float(valor_formatado)
      novo_orcamento = orcamento_final - valor_servico
 
      print(f"Orçamento restante: R$ {novo_orcamento:.2f}")
@@ -39,6 +44,9 @@ def calcular_orcamento(servico, orcamento_final):
          print("Atenção: Orçamento excedido!")
 
      return novo_orcamento
+
+    except ValueError:
+            print("Entrada inválida! Por favor, digite apenas números (ex: 150.50 ou 150,50).")
 
 def add_evento():
     servicos = []
@@ -59,14 +67,10 @@ def add_evento():
     while True:
         try:
             orcamento1 = float(input(f"{nome}, informe o orçamento disponível para o {evento}: R$ "))
-            break  
+            break
         except ValueError:
             print("Entrada inválida! Por favor, digite apenas números (use ponto para centavos, ex: 1500.50).")
-        
-    orcamento1 = float(input(f"{nome}, informe o orçamento disponível para o {evento}: R$ "))
-        
-    print ("Formato não reconhecido. Favor corrija o valor do orçamento.")
-        
+
     convidados = int(input(f"{nome}, informe quantos convidados haverá no {evento}: "))
     orcamento_final = orcamento1
 
@@ -78,7 +82,7 @@ def add_evento():
             servico = input("Digite o nome do serviço que deseja: ")
             servicos.append(servico)
 
-            orcamentoFinal = calcular_orcamento(servico, orcamento_final)
+            orcamento_final = calcular_orcamento(servico, orcamento_final)
 
         elif servico_num == 0:
             break
@@ -87,7 +91,7 @@ def add_evento():
             servico_nome = opcoes_servicos[servico_num]
             servicos.append(servico_nome)
 
-            orcamentoFinal = calcular_orcamento(servico_nome, orcamento_final)
+            orcamento_final = calcular_orcamento(servico_nome, orcamento_final)
 
         else:
             print("Opção inválida, tente novamente.")
@@ -115,30 +119,30 @@ def buscar_evento():
         print(f"\n--- Evento encontrado ---")
         print(f"Nome: {e['nome']}")
         print(f"Evento: {e['evento']}")
-        print(f"Data: {e['data']}") 
+        print(f"Data: {e['data']}")
+        try:
+            try:
+                data_evento = datetime.strptime(e['data'], '%d/%m/%Y').date()
+            except ValueError:
+                data_evento = datetime.strptime(e['data'], '%d/%m/%y').date()
+
+            hoje = datetime.now().date()
+            dias_restantes = (data_evento - hoje).days
+
+            if dias_restantes > 0:
+                print(f"Faltam: {dias_restantes} dias para o evento.")
+            elif dias_restantes == 0:
+                print("O evento é HOJE!")
+            else:
+                print(f"O evento já ocorreu há {abs(dias_restantes)} dias.")
+        except ValueError:
+            print("Não foi possível calcular os dias restantes. Formato de data inválido.")
+            
         print(f"Local: {e['local']}")
         print(f"Orçamento: R$ {e['orcamento']:.2f}")
         print(f"Orçamento Final: R$ {e['orcamento_final']:.2f}")
         print(f"Convidados: {e['convidados']}")
         print(f"Serviços: {', '.join(e['servicos']) if e['servicos'] else 'Nenhum serviço selecionado'}")
-
-        try:
-            data_evento = datetime.strptime(e['data'], '%d/%m/%y').date()
-            hoje = datetime.now().date()
-
-            dias_restantes = (data_evento-hoje).days
-
-            if dias_restantes > 0:
-                print(f"Faltam:{dias_restantes} dias para o evento.")
-            elif dias_restantes == 0:
-                print("O evento é HOJE!")
-            else:
-                print(f"O evento já ocorreu há {abs(dias_restantes)} dias.")        
-        except ValueError:
-            print("Não foi possível calcular os dias restantes. Formato de data inválido.")    
-    else:
-        print("ID não encontrado.")
-
 while True:
     print("\n--- MENU ---")
     print("1. Cadastrar evento")
