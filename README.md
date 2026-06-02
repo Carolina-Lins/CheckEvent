@@ -10,16 +10,18 @@ Este projeto foi desenvolvido como parte dos requisitos avaliativos da disciplin
 
 O sistema conta com os seguintes módulos e recursos principais:
 
-1.**CRUD de Eventos:** Permite cadastrar, visualizar, editar e excluir eventos. Cada evento armazena:
-   * Nome do evento 
+1.**Menu Interativo:** Permite cadastrar evento, buscar evento por ID e Sair.
+Cada evento armazena:
+   * Nome
    * Tipo (Aniversário, Casamento, Reunião, etc.) 
    *Data do evento 
    * Local 
-   * Orçamento disponível 
-2. **Gerenciamento de Tarefas e Orçamento Integrado:** Cadastro de tarefas específicas (como decoração, buffet, música) vinculando seus respectivos custos. O sistema desconta e atualiza automaticamente o saldo do orçamento do evento.
-3. **Contagem Regressiva:** Exibição automatizada de quantos dias faltam para a realização do evento ao visualizá-lo.
-4. **Sugestões Personalizadas:** Com base no tipo de evento e número de convidados informados, o sistema sugere ideias de fornecedores, decoração, cardápios ou entretenimento.
-5. **Funcionalidade Extra (Diferencial):** *[Inserir aqui a ideia criativa. 
+   * Orçamento disponível
+   * Quantidade de pessoas
+2. **Gerenciamento de Tarefas e Orçamento Integrado:** Cadastro de tarefas específicas (como decoração, buffet, música, etc) vinculando seus respectivos custos. O sistema desconta e atualiza automaticamente o saldo do orçamento do evento. Alerta de Estouro: Se o total gasto ultrapassar o orçamento inicial, o sistema exibe imediatamente um aviso.
+3. **Geração de ID único:** Para garantir que os eventos não se misturem e possam ser encontrados facilmente, o programa gera um ID aleatório de 5 dígitos (entre 10000 e 99999) assim que o cadastro é concluído com sucesso. Esse ID funciona como a "chave de acesso" do evento.
+**Contagem Regressiva:** Exibição automatizada de quantos dias faltam para a realização do evento ao visualizá-lo.
+4. **Funcionalidade Extra (Diferencial):**[Inserir aqui a ideia criativa]. 
 ---
 
 ## <img src="https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Objects/Card%20Index%20Dividers.png" alt="Card Index Dividers" width="25" height="25" /> Banco de Dados
@@ -67,7 +69,7 @@ Educacional e não comercial.
 
 Integrante 1 - Alexandre Miranda [(https://github.com/aabmiranda-ops)]
 
-Integrante 2 - Bernardo Acioli  [(https://github.com/    )]
+Integrante 2 - Bernardo Acioli  [(https://github.com/aciolibernardo-code)]
 
 Integrante 3 - Maria Carolina Lins [(https://github.com/Carolina-Lins)]
 
