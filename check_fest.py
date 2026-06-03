@@ -51,7 +51,7 @@ def calcular_orcamento(servico, orcamento_final):
 def add_evento():
     servicos = []
 
-    nome = input("Digite seu nome: ")
+    nome = input("Digite seu nome: ").capitalize()
 
     evento_num = int(input(f"Olá, {nome}, informe o tipo de evento que deseja realizar:\n1. Casamento\n2. Aniversário\n3. Confraternização\n4. Reunião\n5. Formatura\n6. Outro\n"))
     if evento_num not in opcoes_eventos:
@@ -143,10 +143,101 @@ def buscar_evento():
         print(f"Orçamento Final: R$ {e['orcamento_final']:.2f}")
         print(f"Convidados: {e['convidados']}")
         print(f"Serviços: {', '.join(e['servicos']) if e['servicos'] else 'Nenhum serviço selecionado'}")
+
+def listar_todos_eventos():
+    if not agenda:
+        print("\nNenhum evento cadastrado no momento.")
+        return
+    
+    print("\n--- LISTA DE EVENTOS CADASTRADOS ---")
+    for ident, e in agenda.items():
+        print(f"ID: {ident} | Cliente: {e['nome']} | Evento: {e['evento']} | Data: {e['data']}")
+
+
+def excluir_evento():
+    ident = int(input("Digite o ID do evento que deseja excluir: "))
+
+    if ident in agenda:
+        confirmacao = input(f"Tem certeza que deseja excluir o evento de {agenda[ident]['nome']}? (S/N): ").upper()
+        if confirmacao == 'S':
+            del agenda[ident]
+            print("Evento excluído com sucesso!")
+        else:
+            print("Operação cancelada.")
+    else:
+        print("ID não encontrado.")
+
+
+def gerar_relatorio_financeiro():
+    ident = int(input("Digite o ID do evento para ver o relatório financeiro: "))
+
+    if ident in agenda:
+        e = agenda[ident]
+        gasto_total = e['orcamento'] - e['orcamento_final']
+        
+        print(f"\n--- RELATÓRIO FINANCEIRO: {e['evento'].upper()} ({e['nome']}) ---")
+        print(f"Orçamento Inicial: R$ {e['orcamento']:.2f}")
+        print(f"Gasto Total com Serviços: R$ {gasto_total:.2f}")
+        print(f"Saldo Restante: R$ {e['orcamento_final']:.2f}")
+        print(f"Total de Convidados: {e['convidados']}")
+        
+        if e['convidados'] > 0:
+            custo_por_convidado = gasto_total / e['convidados']
+            print(f"Custo estimado por convidado: R$ {custo_por_convidado:.2f}")
+        else:
+            print("Não é possível calcular o custo por convidado (0 convidados informados).")
+    else:
+        print("ID não encontrado.")
+
+
+def buscar_evento_por_nome():
+    nome_busca = input("Digite o nome da pessoa para buscar o evento: ").lower()
+    encontrou = False
+
+    print(f"\n--- Resultados para a busca: '{nome_busca}' ---")
+    for ident, e in agenda.items():
+        if nome_busca in e['nome'].lower():
+            encontrou = True
+            print(f"\nID: {ident}")
+            print(f"Nome: {e['nome']}")
+            print(f"Evento: {e['evento']}")
+            print(f"Data: {e['data']}")
+            try:
+                try:
+                    data_evento = datetime.strptime(e['data'], '%d/%m/%Y').date()
+                except ValueError:
+                    data_evento = datetime.strptime(e['data'], '%d/%m/%y').date()
+
+                hoje = datetime.now().date()
+                dias_restantes = (data_evento - hoje).days
+
+                if dias_restantes > 0:
+                    print(f"Faltam: {dias_restantes} dias para o evento.")
+                elif dias_restantes == 0:
+                    print("O evento é HOJE!")
+                else:
+                    print(f"O evento já ocorreu há {abs(dias_restantes)} dias.")
+            except ValueError:
+                print("Não foi possível calcular os dias restantes. Formato de data inválido.")
+            
+            print(f"Local: {e['local']}")
+            print(f"Orçamento Inicial: R$ {e['orcamento']:.2f}")
+            print(f"Orçamento Restante: R$ {e['orcamento_final']:.2f}")
+            print(f"Convidados: {e['convidados']}")
+            print(f"Serviços: {', '.join(e['servicos']) if e['servicos'] else 'Nenhum serviço selecionado'}")
+            print("-" * 30)
+
+    if not encontrou:
+        print("Nenhum evento encontrado para este nome.")
+
 while True:
     print("\n--- MENU ---")
     print("1. Cadastrar evento")
     print("2. Buscar evento por ID")
+    print("3. Listar todos os eventos")
+    print("4. Excluir um evento")
+    print("5. Relatório financeiro do evento")
+    print("6. Buscar evento por nome do cliente")
     print("0. Sair")
 
     opcao = int(input("\nEscolha uma opção: "))
@@ -155,6 +246,14 @@ while True:
         add_evento()
     elif opcao == 2:
         buscar_evento()
+    elif opcao == 3:
+        listar_todos_eventos()
+    elif opcao == 4:
+        excluir_evento()
+    elif opcao == 5:
+        gerar_relatorio_financeiro()
+    elif opcao == 6:
+        buscar_evento_por_nome()
     elif opcao == 0:
         print("Saindo...")
         break
