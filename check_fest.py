@@ -13,18 +13,9 @@ opcoes_eventos = {
 }
 
 opcoes_servicos = {
-    1: "Buffet",
-    2: "Banda",
-    3: "Iluminação",
-    4: "Ornamentação",
-    5: "Segurança",
-    6: "Doces e Bolos",
-    7: "Serviços Gráficos",
-    8: "Veículos",
-    9: "Make",
-    10: "Foto e Filmagem",
-    11: "Cerimonial",
-    12: "Outros"
+    1: "Buffet", 2: "Banda", 3: "Iluminação", 4: "Ornamentação", 
+    5: "Segurança", 6: "Doces e Bolos", 7: "Serviços Gráficos", 8: "Veículos",
+    9: "Make", 10: "Foto e Filmagem", 11: "Cerimonial", 12: "Outros"
 }
 def gerar_id():
     return random.randint(10000, 99999)
@@ -40,13 +31,30 @@ def calcular_orcamento(servico, orcamento_final):
 
      print(f"Orçamento restante: R$ {novo_orcamento:.2f}")
 
-     if novo_orcamento < 0:
-         print("Atenção: Orçamento excedido!")
+     if novo_orcamento <= 0:
+         print(" ⚠️ Atenção: Orçamento excedido ou no limite!")
 
      return novo_orcamento
 
     except ValueError:
             print("Entrada inválida! Por favor, digite apenas números (ex: 150.50 ou 150,50).")
+def sugestoes_eventos (evento, convidados):
+    print("\n" + "="*40)
+    print("💡 SUGESTÕES PERSONALIZADAS DO SISTEMA")
+    if evento == "Casamento":
+        print("- Dica de Cardápio: Jantar empratado ou buffet completo são ideais.")
+        print("- Dica de Fornecedor: Não esqueça de contratar um bom fotógrafo e banda!")
+    elif evento == "Aniversário":
+        print("- Dica de Cardápio: Salgadinhos tradicionais, bolo decorado e doces.")
+        print("- Decoração: Balões e painéis temáticos são o diferencial.")
+    elif evento == "Reunião" or evento == "Confraternização":
+        print("- Dica de Cardápio: Coffee break, finger foods ou churrasco são bastante utilizados.")
+
+    if convidados > 100:
+        print(f"- Estrutura: Para {convidados} pessoas, sugerimos locar um espaço amplo e contratar de limpeza.")
+    elif convidados < 40:
+        print(f"- Estrutura: Um evento íntimo para {convidados} pessoas permite maior investimento na qualidade do buffet e lembrancinhas.")
+    print("="*40 + "\n")
 
 def add_evento():
     servicos = []
@@ -62,7 +70,20 @@ def add_evento():
     else:
         evento = opcoes_eventos[evento_num]
 
-    data = input(f"{nome}, informe a data do {evento}: ").lower()
+    data_str = input(f"{nome}, informe a data do {evento} (DD/MM/AAA): ")
+    
+    try:
+        evento_data = datetime.strptime(data_str, "%d/%m/%Y").date()
+        hoje = datetime.now().date()
+
+        if evento_data < hoje:
+            confirma_data = input("A data do evento já passou, deseja continuar mesmo assim? S/N: ").upper()
+            if confirma_data != 'S':
+                print("❌ Operação cancelada")
+                return
+    except ValueError:
+        print("❌ O formato de data não é válido! Operação Cancelada.")    
+
     local = input(f"{nome}, informe o local do {evento}: ").lower()
     while True:
         try:
@@ -74,9 +95,10 @@ def add_evento():
     convidados = int(input(f"{nome}, informe quantos convidados haverá no {evento}: "))
     orcamento_final = orcamento1
 
+    sugestoes_eventos(evento, convidados)
 
     while True:
-        servico_num = int(input(f"\nDigite qual serviço deseja para o {evento}:\n1. Buffet\n2. Banda\n3. Iluminação\n4. Ornamentação\n5. Segurança\n6. Doces e Bolos\n7. Serviços Gráficos\n8. Veículos\n9. Make\n10. Foto e Filmagem\n11. Cerimonial\n12. Outros\nOu '0' para SAIR\n"))
+        servico_num = int(input(f"\nDigite qual serviço deseja para o {evento}:\n1. Buffet\n2. Banda\n3. Iluminação\n4. Ornamentação\n5. Segurança\n6. Doces e Bolos\n7. Serviços Gráficos\n8. Veículos\n9. Make\n10. Foto e Filmagem\n11. Cerimonial\n12. Outros\nOu '0' para FINALIZAR\n"))
 
         if servico_num == 12:
             servico = input("Digite o nome do serviço que deseja: ")
@@ -101,7 +123,7 @@ def add_evento():
     agenda[ident] = {
         "nome": nome,
         "evento": evento,
-        "data": data,
+        "data": data_str,
         "local": local,
         "orcamento": orcamento1,
         "orcamento_final": orcamento_final,
@@ -109,14 +131,14 @@ def add_evento():
         "servicos": servicos
     }
 
-    print(f"\nEvento cadastrado com sucesso! Seu ID é: {ident}. Guarde-o!")
+    print(f"\n ✅ Evento cadastrado com sucesso! Seu ID é: {ident}. Guarde-o!")
     return ident
 
 def buscar_evento():
     ident = int(input("Digite o ID do evento: "))
     if ident in agenda:
         e = agenda[ident]
-        print(f"\n--- Evento encontrado ---")
+        print(f"\n--- 📅 Evento encontrado ---")
         print(f"Nome: {e['nome']}")
         print(f"Evento: {e['evento']}")
         print(f"Data: {e['data']}")
@@ -130,13 +152,13 @@ def buscar_evento():
             dias_restantes = (data_evento - hoje).days
 
             if dias_restantes > 0:
-                print(f"Faltam: {dias_restantes} dias para o evento.")
+                print(f"⏳ Faltam: {dias_restantes} dias para o evento.")
             elif dias_restantes == 0:
-                print("O evento é HOJE!")
+                print("🎉 O evento é HOJE!")
             else:
-                print(f"O evento já ocorreu há {abs(dias_restantes)} dias.")
+                print(f"🕰️ O evento já ocorreu há {abs(dias_restantes)} dias.")
         except ValueError:
-            print("Não foi possível calcular os dias restantes. Formato de data inválido.")
+            print(" ⚠️ Não foi possível calcular os dias restantes. Formato de data inválido.")
             
         print(f"Local: {e['local']}")
         print(f"Orçamento: R$ {e['orcamento']:.2f}")
@@ -146,7 +168,7 @@ def buscar_evento():
 
 def listar_todos_eventos():
     if not agenda:
-        print("\nNenhum evento cadastrado no momento.")
+        print("\n❌ Nenhum evento cadastrado no momento.")
         return
     
     print("\n--- LISTA DE EVENTOS CADASTRADOS ---")
@@ -161,7 +183,7 @@ def excluir_evento():
         confirmacao = input(f"Tem certeza que deseja excluir o evento de {agenda[ident]['nome']}? (S/N): ").upper()
         if confirmacao == 'S':
             del agenda[ident]
-            print("Evento excluído com sucesso!")
+            print("🗑️ Evento excluído com sucesso!")
         else:
             print("Operação cancelada.")
     else:
@@ -187,7 +209,7 @@ def gerar_relatorio_financeiro():
         else:
             print("Não é possível calcular o custo por convidado (0 convidados informados).")
     else:
-        print("ID não encontrado.")
+        print("❌ ID não encontrado.")
 
 
 def buscar_evento_por_nome():
@@ -198,6 +220,7 @@ def buscar_evento_por_nome():
     for ident, e in agenda.items():
         if nome_busca in e['nome'].lower():
             encontrou = True
+            print(f"\n--- 📅 Evento encontrado ---")
             print(f"\nID: {ident}")
             print(f"Nome: {e['nome']}")
             print(f"Evento: {e['evento']}")
@@ -212,13 +235,13 @@ def buscar_evento_por_nome():
                 dias_restantes = (data_evento - hoje).days
 
                 if dias_restantes > 0:
-                    print(f"Faltam: {dias_restantes} dias para o evento.")
+                    print(f"⏳ Faltam: {dias_restantes} dias para o evento.")
                 elif dias_restantes == 0:
-                    print("O evento é HOJE!")
+                    print("🎉 O evento é HOJE!")
                 else:
-                    print(f"O evento já ocorreu há {abs(dias_restantes)} dias.")
+                    print(f"🕰️ O evento já ocorreu há {abs(dias_restantes)} dias.")
             except ValueError:
-                print("Não foi possível calcular os dias restantes. Formato de data inválido.")
+                print("⚠️ Não foi possível calcular os dias restantes. Formato de data inválido.")
             
             print(f"Local: {e['local']}")
             print(f"Orçamento Inicial: R$ {e['orcamento']:.2f}")
@@ -228,7 +251,7 @@ def buscar_evento_por_nome():
             print("-" * 30)
 
     if not encontrou:
-        print("Nenhum evento encontrado para este nome.")
+        print(" ❌ Nenhum evento encontrado para este nome.")
 
 while True:
     print("\n--- MENU ---")
@@ -255,7 +278,7 @@ while True:
     elif opcao == 6:
         buscar_evento_por_nome()
     elif opcao == 0:
-        print("Saindo...")
+        print("Saindo... Obrigado por usar o Check Event! 👋")
         break
     else:
         print("Opção inválida.")
