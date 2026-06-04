@@ -1,7 +1,9 @@
 import random
+import os
 from datetime import datetime
 
 agenda = {}
+ARQUIVO_TXT = "agenda_salva.txt"
 
 opcoes_eventos = {
     1: "Casamento",
@@ -17,28 +19,78 @@ opcoes_servicos = {
     5: "Segurança", 6: "Doces e Bolos", 7: "Serviços Gráficos", 8: "Veículos",
     9: "Make", 10: "Foto e Filmagem", 11: "Cerimonial", 12: "Outros"
 }
+
+def carregar_dados():
+    global agenda
+    if os.path.exists(ARQUIVO_TXT):
+        with open(ARQUIVO_TXT, 'r', encoding='utf-8') as arquivo:
+            for linha in arquivo:
+                linha = linha.strip() # Remove espaços e quebras de linha nas pontas
+                if not linha:
+                    continue # Pula linhas vazias
+                
+                # Quebramos a linha toda vez que encontrar a barra '|'
+                partes = linha.split('|')
+                
+                if len(partes) == 9:
+                    ident = int(partes[0])
+                    nome = partes[1]
+                    evento = partes[2]
+                    data_str = partes[3]
+                    local = partes[4]
+                    orcamento = float(partes[5])
+                    orcamento_final = float(partes[6])
+                    convidados = int(partes[7])
+                    
+                    servicos_str = partes[8]
+                    if servicos_str:
+                        servicos = servicos_str.split(',')
+                    else:
+                        servicos = []
+                        
+                    agenda[ident] = {
+                        "nome": nome,
+                        "evento": evento,
+                        "data": data_str,
+                        "local": local,
+                        "orcamento": orcamento,
+                        "orcamento_final": orcamento_final,
+                        "convidados": convidados,
+                        "servicos": servicos
+                    }
+
+def salvar_dados():
+    with open(ARQUIVO_TXT, 'w', encoding='utf-8') as arquivo:
+        for ident, e in agenda.items():
+            servicos_str = ",".join(e['servicos'])
+            
+            linha = f"{ident}|{e['nome']}|{e['evento']}|{e['data']}|{e['local']}|{e['orcamento']}|{e['orcamento_final']}|{e['convidados']}|{servicos_str}\n"
+            
+            arquivo.write(linha)
+
 def gerar_id():
     return random.randint(10000, 99999)
 
 def calcular_orcamento(servico, orcamento_final):
-  while True:
-    try:
-     valor_servico = input(f"Digite o valor do serviço '{servico}': R$ ")
-     valor_formatado = valor_servico.replace(',', '.')
+    while True:
+        try:
+            valor_servico = input(f"Digite o valor do serviço '{servico}': R$ ")
+            valor_formatado = valor_servico.replace(',', '.')
 
-     valor_servico = float(valor_formatado)
-     novo_orcamento = orcamento_final - valor_servico
+            valor_servico = float(valor_formatado)
+            novo_orcamento = orcamento_final - valor_servico
 
-     print(f"Orçamento restante: R$ {novo_orcamento:.2f}")
+            print(f"Orçamento restante: R$ {novo_orcamento:.2f}")
 
-     if novo_orcamento <= 0:
-         print(" ⚠️ Atenção: Orçamento excedido ou no limite!")
+            if novo_orcamento <= 0:
+                print(" ⚠️ Atenção: Orçamento excedido ou no limite!")
 
-     return novo_orcamento
+            return novo_orcamento
 
-    except ValueError:
+        except ValueError:
             print("Entrada inválida! Por favor, digite apenas números (ex: 150.50 ou 150,50).")
-def sugestoes_eventos (evento, convidados):
+
+def sugestoes_eventos(evento, convidados):
     print("\n" + "="*40)
     print("💡 SUGESTÕES PERSONALIZADAS DO SISTEMA")
     if evento == "Casamento":
@@ -51,7 +103,7 @@ def sugestoes_eventos (evento, convidados):
         print("- Dica de Cardápio: Coffee break, finger foods ou churrasco são bastante utilizados.")
 
     if convidados > 100:
-        print(f"- Estrutura: Para {convidados} pessoas, sugerimos locar um espaço amplo e contratar de limpeza.")
+        print(f"- Estrutura: Para {convidados} pessoas, sugerimos locar um espaço amplo e contratar equipe de limpeza.")
     elif convidados < 40:
         print(f"- Estrutura: Um evento íntimo para {convidados} pessoas permite maior investimento na qualidade do buffet e lembrancinhas.")
     print("="*40 + "\n")
@@ -70,7 +122,7 @@ def add_evento():
     else:
         evento = opcoes_eventos[evento_num]
 
-    data_str = input(f"{nome}, informe a data do {evento} (DD/MM/AAA): ")
+    data_str = input(f"{nome}, informe a data do {evento} (DD/MM/AAAA): ")
     
     try:
         evento_data = datetime.strptime(data_str, "%d/%m/%Y").date()
@@ -82,7 +134,8 @@ def add_evento():
                 print("❌ Operação cancelada")
                 return
     except ValueError:
-        print("❌ O formato de data não é válido! Operação Cancelada.")    
+        print("❌ O formato de data não é válido! Operação Cancelada.")
+        return
 
     local = input(f"{nome}, informe o local do {evento}: ").lower()
     while True:
@@ -103,7 +156,6 @@ def add_evento():
         if servico_num == 12:
             servico = input("Digite o nome do serviço que deseja: ")
             servicos.append(servico)
-
             orcamento_final = calcular_orcamento(servico, orcamento_final)
 
         elif servico_num == 0:
@@ -112,7 +164,6 @@ def add_evento():
         elif servico_num in opcoes_servicos:
             servico_nome = opcoes_servicos[servico_num]
             servicos.append(servico_nome)
-
             orcamento_final = calcular_orcamento(servico_nome, orcamento_final)
 
         else:
@@ -130,12 +181,18 @@ def add_evento():
         "convidados": convidados,
         "servicos": servicos
     }
-
+    
+    salvar_dados() 
     print(f"\n ✅ Evento cadastrado com sucesso! Seu ID é: {ident}. Guarde-o!")
     return ident
 
 def buscar_evento():
-    ident = int(input("Digite o ID do evento: "))
+    try:
+        ident = int(input("Digite o ID do evento: "))
+    except ValueError:
+        print("ID inválido.")
+        return
+
     if ident in agenda:
         e = agenda[ident]
         print(f"\n--- 📅 Evento encontrado ---")
@@ -165,6 +222,8 @@ def buscar_evento():
         print(f"Orçamento Final: R$ {e['orcamento_final']:.2f}")
         print(f"Convidados: {e['convidados']}")
         print(f"Serviços: {', '.join(e['servicos']) if e['servicos'] else 'Nenhum serviço selecionado'}")
+    else:
+        print("ID não encontrado.")
 
 def listar_todos_eventos():
     if not agenda:
@@ -175,14 +234,18 @@ def listar_todos_eventos():
     for ident, e in agenda.items():
         print(f"ID: {ident} | Cliente: {e['nome']} | Evento: {e['evento']} | Data: {e['data']}")
 
-
 def excluir_evento():
-    ident = int(input("Digite o ID do evento que deseja excluir: "))
+    try:
+        ident = int(input("Digite o ID do evento que deseja excluir: "))
+    except ValueError:
+        print("ID inválido.")
+        return
 
     if ident in agenda:
         confirmacao = input(f"Tem certeza que deseja excluir o evento de {agenda[ident]['nome']}? (S/N): ").upper()
         if confirmacao == 'S':
             del agenda[ident]
+            salvar_dados() # Atualiza o txt
             print("🗑️ Evento excluído com sucesso!")
         else:
             print("Operação cancelada.")
@@ -190,7 +253,11 @@ def excluir_evento():
         print("ID não encontrado.")
 
 def update_evento():
-    ident = int(input("Digite o ID do evento que deseja atualizar: "))
+    try:
+        ident = int(input("Digite o ID do evento que deseja atualizar: "))
+    except ValueError:
+        print("ID inválido.")
+        return
 
     if ident in agenda:
         e = agenda[ident]
@@ -203,12 +270,15 @@ def update_evento():
             print("3. Alterar Quantidade de Convidados")
             print("0. Finalizar alterações")
             
-            opcao_update = int(input("\nEscolha uma opção: "))
+            try:
+                opcao_update = int(input("\nEscolha uma opção: "))
+            except ValueError:
+                print("Opção inválida.")
+                continue
             
             if opcao_update == 1:
                 nova_data = input(f"Nova data (Data atual: {e['data']}) (DD/MM/AAAA): ")
                 try:
-                    # Validação simples da data digitada
                     datetime.strptime(nova_data, "%d/%m/%Y")
                     e['data'] = nova_data
                     print("Data atualizada com sucesso!")
@@ -225,22 +295,25 @@ def update_evento():
                     novos_convidados = int(input(f"Nova quantidade de convidados (Atual: {e['convidados']}): "))
                     e['convidados'] = novos_convidados
                     print("Quantidade de convidados atualizada!")
-        
                     sugestoes_eventos(e['evento'], novos_convidados)
                 except ValueError:
                     print("Entrada inválida! Digite apenas números inteiros.")
                     
             elif opcao_update == 0:
-                print(" Returning ao menu principal... Alterações salvas!")
+                salvar_dados() # Salva no txt ao finalizar
+                print(" Retornando ao menu principal... Alterações salvas!")
                 break
             else:
                 print("Opção inválida.")
     else:
         print("ID não encontrado.")
 
-
 def gerar_relatorio_financeiro():
-    ident = int(input("Digite o ID do evento para ver o relatório financeiro: "))
+    try:
+        ident = int(input("Digite o ID do evento para ver o relatório financeiro: "))
+    except ValueError:
+        print("ID inválido.")
+        return
 
     if ident in agenda:
         e = agenda[ident]
@@ -259,7 +332,6 @@ def gerar_relatorio_financeiro():
             print("Não é possível calcular o custo por convidado (0 convidados informados).")
     else:
         print("❌ ID não encontrado.")
-
 
 def buscar_evento_por_nome():
     nome_busca = input("Digite o nome da pessoa para buscar o evento: ").lower()
@@ -302,6 +374,8 @@ def buscar_evento_por_nome():
     if not encontrou:
         print(" ❌ Nenhum evento encontrado para este nome.")
 
+carregar_dados() 
+
 while True:
     print("\n---------- MENU ----------")
     print("1. Cadastrar evento")
@@ -311,7 +385,14 @@ while True:
     print("5. Relatório financeiro do evento")
     print("6. Buscar evento por nome do cliente")
     print("7. Atualizar dados de um evento")
-    opcao = int(input("\nEscolha uma opção: "))
+    print("0. Sair")
+    
+    try:
+        opcao = int(input("\nEscolha uma opção: "))
+    except ValueError:
+        print("Opção inválida. Digite um número.")
+        continue
+
     if opcao == 1:
         add_evento()
     elif opcao == 2:
