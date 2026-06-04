@@ -189,6 +189,55 @@ def excluir_evento():
     else:
         print("ID não encontrado.")
 
+def update_evento():
+    ident = int(input("Digite o ID do evento que deseja atualizar: "))
+
+    if ident in agenda:
+        e = agenda[ident]
+        print(f"\n--- 📝 Editando o evento de {e['nome']} ({e['evento']}) ---")
+        
+        while True:
+            print("\nO que você deseja alterar?")
+            print("1. Alterar Data")
+            print("2. Alterar Local")
+            print("3. Alterar Quantidade de Convidados")
+            print("0. Finalizar alterações")
+            
+            opcao_update = int(input("\nEscolha uma opção: "))
+            
+            if opcao_update == 1:
+                nova_data = input(f"Nova data (Data atual: {e['data']}) (DD/MM/AAAA): ")
+                try:
+                    # Validação simples da data digitada
+                    datetime.strptime(nova_data, "%d/%m/%Y")
+                    e['data'] = nova_data
+                    print("Data atualizada com sucesso!")
+                except ValueError:
+                    print("Formato de data inválido! A data não foi alterada.")
+                    
+            elif opcao_update == 2:
+                novo_local = input(f"Novo local (Local atual: {e['local']}): ").lower()
+                e['local'] = novo_local
+                print("Local atualizado com sucesso!")
+                
+            elif opcao_update == 3:
+                try:
+                    novos_convidados = int(input(f"Nova quantidade de convidados (Atual: {e['convidados']}): "))
+                    e['convidados'] = novos_convidados
+                    print("Quantidade de convidados atualizada!")
+        
+                    sugestoes_eventos(e['evento'], novos_convidados)
+                except ValueError:
+                    print("Entrada inválida! Digite apenas números inteiros.")
+                    
+            elif opcao_update == 0:
+                print(" Returning ao menu principal... Alterações salvas!")
+                break
+            else:
+                print("Opção inválida.")
+    else:
+        print("ID não encontrado.")
+
 
 def gerar_relatorio_financeiro():
     ident = int(input("Digite o ID do evento para ver o relatório financeiro: "))
@@ -254,17 +303,15 @@ def buscar_evento_por_nome():
         print(" ❌ Nenhum evento encontrado para este nome.")
 
 while True:
-    print("\n--- MENU ---")
+    print("\n---------- MENU ----------")
     print("1. Cadastrar evento")
     print("2. Buscar evento por ID")
     print("3. Listar todos os eventos")
     print("4. Excluir um evento")
     print("5. Relatório financeiro do evento")
     print("6. Buscar evento por nome do cliente")
-    print("0. Sair")
-
+    print("7. Atualizar dados de um evento")
     opcao = int(input("\nEscolha uma opção: "))
-
     if opcao == 1:
         add_evento()
     elif opcao == 2:
@@ -277,6 +324,8 @@ while True:
         gerar_relatorio_financeiro()
     elif opcao == 6:
         buscar_evento_por_nome()
+    elif opcao == 7:
+        update_evento()
     elif opcao == 0:
         print("Saindo... Obrigado por usar o Check Event! 👋")
         break
