@@ -10,18 +10,19 @@ Este projeto foi desenvolvido como parte dos requisitos avaliativos da disciplin
 
 O sistema conta com os seguintes módulos e recursos principais:
 
-1.**Menu Interativo:** Permite cadastrar evento, buscar evento por ID e Sair.
+1.**Menu Interativo:** Permite cadastrar evento, buscar evento por ID, por nome do cliente, atualizar dados de um evento, relatório do evento, excluir, listar todos os evento e Sair.
   Cada evento armazena:
    * Nome
    * Tipo (Aniversário, Casamento, Reunião, etc.) 
-   *Data do evento 
+   * Data do evento 
    * Local 
    * Orçamento disponível
    * Quantidade de pessoas
 2. **Gerenciamento de Tarefas e Orçamento Integrado:** Cadastro de tarefas específicas (como decoração, buffet, música, etc) vinculando seus respectivos custos. O sistema desconta e atualiza automaticamente o saldo do orçamento do evento. Alerta de Estouro: Se o total gasto ultrapassar o orçamento inicial, o sistema exibe imediatamente um aviso.
-3. **Geração de ID único:** Para garantir que os eventos não se misturem e possam ser encontrados facilmente, o programa gera um ID aleatório de 5 dígitos (entre 10000 e 99999) assim que o cadastro é concluído com sucesso. Esse ID funciona como a "chave de acesso" do evento.
-4. **Contagem Regressiva:** Exibição automatizada de quantos dias faltam para a realização do evento ao visualizá-lo.
-5. **Funcionalidade Extra (Diferencial):**[Inserir aqui a ideia criativa]. 
+3. **Sugestão Personalizada:** Dica de Cardápio de acordo com o tipo de evento escolhido e a quantidade de pessoas.
+4. **Geração de ID único:** Para garantir que os eventos não se misturem e possam ser encontrados facilmente, o programa gera um ID aleatório de 5 dígitos (entre 10000 e 99999) assim que o cadastro é concluído com sucesso. Esse ID funciona como a "chave de acesso" do evento.
+5. **Contagem Regressiva:** Exibição automatizada de quantos dias faltam para a realização do evento ao visualizá-lo.
+6. **Funcionalidade Extra (Diferencial):**[Inserir aqui a ideia criativa]. 
 ---
 
 ## <img src="https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Objects/Card%20Index%20Dividers.png" alt="Card Index Dividers" width="25" height="25" /> Banco de Dados
@@ -46,15 +47,15 @@ O projeto foi construído seguindo rigorosamente as diretrizes de desenvolviment
 1. Certifique-se de ter o Python instalado em sua máquina. 
 2. Clone este repositório para o seu ambiente local:
    ```bash
-   git clone [https://github.com/seu-usuario/organiza-festa.git](https://github.com/seu-usuario/organiza-festa.git)
+   git clone https://github.com/Carolina-Lins/CheckEvent.git
    ```
 3. Navegue até o diretório do projeto:
    ```bash
-   cd check_fest.py
+   cd CheckEvent
     ```
 4. Execute o arquivo principal do sistema:
    ```bash
-   python check_fest.py
+   python check_event.py
    ```
    
 ---
