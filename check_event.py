@@ -20,16 +20,19 @@ opcoes_servicos = {
     9: "Make", 10: "Foto e Filmagem", 11: "Cerimonial", 12: "Outros"
 }
 
+def limpar_tela():
+    """Limpa o terminal de acordo com o sistema operacional."""
+    os.system('cls' if os.name == 'nt' else 'clear')
+
 def carregar_dados():
     global agenda
     if os.path.exists(ARQUIVO_TXT):
         with open(ARQUIVO_TXT, 'r', encoding='utf-8') as arquivo:
             for linha in arquivo:
-                linha = linha.strip() # Remove espaços e quebras de linha nas pontas
+                linha = linha.strip() 
                 if not linha:
-                    continue # Pula linhas vazias
-                
-                # Quebramos a linha toda vez que encontrar a barra '|'
+                    continue 
+
                 partes = linha.split('|')
                 
                 if len(partes) == 9:
@@ -109,6 +112,7 @@ def sugestoes_eventos(evento, convidados):
     print("="*40 + "\n")
 
 def add_evento():
+    limpar_tela()
     servicos = []
     
     while True:
@@ -120,7 +124,7 @@ def add_evento():
         else:
             print("❌ Erro: O nome não pode conter números ou símbolos. Digite apenas letras.")
 
-    evento_num = int(input(f"Olá, {nome}, informe o tipo de evento que deseja realizar:\n1. Casamento\n2. Aniversário\n3. Confraternização\n4. Reunião\n5. Formatura\n6. Outro\n"))
+    evento_num = int(input(f"Olá, {nome}, informe o tipo de evento que deseja realizar:\n1. Casamento\n2. Aniversário\n3. Confraternização\n4. Reunião\n5. Formatura\n6. Outro\n=> "))
     if evento_num not in opcoes_eventos:
         print("Opção inválida.")
         return
@@ -158,7 +162,7 @@ def add_evento():
     sugestoes_eventos(evento, convidados)
 
     while True:
-        servico_num = int(input(f"\nDigite qual serviço deseja para o {evento}:\n1. Buffet\n2. Banda\n3. Iluminação\n4. Ornamentação\n5. Segurança\n6. Doces e Bolos\n7. Serviços Gráficos\n8. Veículos\n9. Make\n10. Foto e Filmagem\n11. Cerimonial\n12. Outros\nOu '0' para FINALIZAR\n"))
+        servico_num = int(input(f"\nDigite qual serviço deseja para o {evento}:\n1. Buffet\n2. Banda\n3. Iluminação\n4. Ornamentação\n5. Segurança\n6. Doces e Bolos\n7. Serviços Gráficos\n8. Veículos\n9. Make\n10. Foto e Filmagem\n11. Cerimonial\n12. Outros\nOu '0' para FINALIZAR\n=> "))
 
         if servico_num == 12:
             servico = input("Digite o nome do serviço que deseja: ")
@@ -194,6 +198,7 @@ def add_evento():
     return ident
 
 def buscar_evento():
+    limpar_tela()
     while True:
         entrada = input("\nDigite o ID do evento (ou digite '0' para voltar ao menu): ")
         
@@ -243,6 +248,7 @@ def buscar_evento():
             print("❌ ID não encontrado no sistema. Verifique o número e tente novamente.")
 
 def listar_todos_eventos():
+    limpar_tela()
     if not agenda:
         print("\n❌ Nenhum evento cadastrado no momento.")
         return
@@ -252,6 +258,7 @@ def listar_todos_eventos():
         print(f"ID: {ident} | Cliente: {e['nome']} | Evento: {e['evento']} | Data: {e['data']}")
 
 def excluir_evento():
+    limpar_tela()
     try:
         ident = int(input("Digite o ID do evento que deseja excluir: "))
     except ValueError:
@@ -262,7 +269,7 @@ def excluir_evento():
         confirmacao = input(f"Tem certeza que deseja excluir o evento de {agenda[ident]['nome']}? (S/N): ").upper()
         if confirmacao == 'S':
             del agenda[ident]
-            salvar_dados() # Atualiza o txt
+            salvar_dados() 
             print("🗑️ Evento excluído com sucesso!")
         else:
             print("Operação cancelada.")
@@ -270,6 +277,7 @@ def excluir_evento():
         print("ID não encontrado.")
 
 def update_evento():
+    limpar_tela()
     try:
         ident = int(input("Digite o ID do evento que deseja atualizar: "))
     except ValueError:
@@ -278,19 +286,21 @@ def update_evento():
 
     if ident in agenda:
         e = agenda[ident]
-        print(f"\n--- 📝 Editando o evento de {e['nome']} ({e['evento']}) ---")
         
         while True:
-            print("\nO que você deseja alterar?")
+            limpar_tela()
+            print(f"\n--- 📝 Editando o evento de {e['nome']} ({e['evento']}) ---")
+            print("O que você deseja alterar?")
             print("1. Alterar Data")
             print("2. Alterar Local")
             print("3. Alterar Quantidade de Convidados")
-            print("0. Finalizar alterações")
+            print("0. Finalizar alterações e Sair")
             
             try:
                 opcao_update = int(input("\nEscolha uma opção: "))
             except ValueError:
                 print("Opção inválida.")
+                input("\nPressione ENTER para tentar novamente...")
                 continue
             
             if opcao_update == 1:
@@ -301,11 +311,13 @@ def update_evento():
                     print("Data atualizada com sucesso!")
                 except ValueError:
                     print("Formato de data inválido! A data não foi alterada.")
+                input("\nPressione ENTER para continuar...")
                     
             elif opcao_update == 2:
                 novo_local = input(f"Novo local (Local atual: {e['local']}): ").lower()
                 e['local'] = novo_local
                 print("Local atualizado com sucesso!")
+                input("\nPressione ENTER para continuar...")
                 
             elif opcao_update == 3:
                 try:
@@ -315,42 +327,83 @@ def update_evento():
                     sugestoes_eventos(e['evento'], novos_convidados)
                 except ValueError:
                     print("Entrada inválida! Digite apenas números inteiros.")
+                input("\nPressione ENTER para continuar...")
                     
             elif opcao_update == 0:
-                salvar_dados() # Salva no txt ao finalizar
+                salvar_dados() 
                 print(" Retornando ao menu principal... Alterações salvas!")
                 break
             else:
                 print("Opção inválida.")
+                input("\nPressione ENTER para tentar novamente...")
     else:
         print("ID não encontrado.")
 
 def gerar_relatorio_financeiro():
-    try:
-        ident = int(input("Digite o ID do evento para ver o relatório financeiro: "))
-    except ValueError:
-        print("ID inválido.")
+    limpar_tela()
+    entrada = input("Digite o ID do evento ou o Nome do cliente para ver o relatório: ")
+    
+    eventos_encontrados = []
+
+    if entrada.isdigit():
+        ident = int(entrada)
+        if ident in agenda:
+            eventos_encontrados.append((ident, agenda[ident]))
+    else:
+        nome_busca = entrada.lower()
+        for ident, e in agenda.items():
+            if nome_busca in e['nome'].lower():
+                eventos_encontrados.append((ident, e))
+
+    if not eventos_encontrados:
+        print("❌ Nenhum evento encontrado para esta busca.")
         return
 
-    if ident in agenda:
-        e = agenda[ident]
+    for ident, e in eventos_encontrados:
         gasto_total = e['orcamento'] - e['orcamento_final']
+        data_atual = datetime.now().strftime("%d/%m/%Y %H:%M")
         
-        print(f"\n--- RELATÓRIO FINANCEIRO: {e['evento'].upper()} ({e['nome']}) ---")
-        print(f"Orçamento Inicial: R$ {e['orcamento']:.2f}")
-        print(f"Gasto Total com Serviços: R$ {gasto_total:.2f}")
-        print(f"Saldo Restante: R$ {e['orcamento_final']:.2f}")
-        print(f"Total de Convidados: {e['convidados']}")
+        print("\n" + "="*45)
+        print(f"{'C H E C K   E V E N T':^45}")
+        print(f"{'CUPOM / NOTA FISCAL':^45}")
+        print("="*45)
+        print(f" DATA: {data_atual:<19} ID: {ident}")
+        print(f" CLIENTE: {e['nome']}")
+        print(f" EVENTO: {e['evento']}")
+        print("-" * 45)
+        print(f"{'DESCRIÇÃO DOS SERVIÇOS':^45}")
+        print("-" * 45)
+        
+        if e['servicos']:
+            for servico in e['servicos']:
+                print(f" * {servico:<41}")
+        else:
+            print(f"{'(Nenhum serviço contratado)':^45}")
+            
+        print("-" * 45)
+        print(" RESUMO FINANCEIRO")
+        print("-" * 45)
+        print(f" Orçamento Inicial:           R$ {e['orcamento']:>10.2f}")
+        print(f" Total Gasto:                 R$ {gasto_total:>10.2f}")
+        print("." * 45)
+        print(f" SALDO RESTANTE:              R$ {e['orcamento_final']:>10.2f}")
+        print("=" * 45)
+        print(" ESTATÍSTICAS DO EVENTO")
+        print("." * 45)
+        print(f" Total de Convidados: {e['convidados']:>23}")
         
         if e['convidados'] > 0:
             custo_por_convidado = gasto_total / e['convidados']
-            print(f"Custo estimado por convidado: R$ {custo_por_convidado:.2f}")
+            print(f" Custo/Convidado (Estimado):  R$ {custo_por_convidado:>10.2f}")
         else:
-            print("Não é possível calcular o custo por convidado (0 convidados informados).")
-    else:
-        print("❌ ID não encontrado.")
+            print(f" Custo/Convidado:        (Sem convidados)")
+            
+        print("=" * 45)
+        print(f"{'Obrigado pela preferência!':^45}")
+        print("=" * 45 + "\n")
 
 def buscar_evento_por_nome():
+    limpar_tela()
     nome_busca = input("Digite o nome da pessoa para buscar o evento: ").lower()
     encontrou = False
 
@@ -394,6 +447,7 @@ def buscar_evento_por_nome():
 carregar_dados() 
 
 while True:
+    limpar_tela()
     print("\n---------- MENU ----------")
     print("1. Cadastrar evento")
     print("2. Buscar evento por ID")
@@ -408,7 +462,9 @@ while True:
         opcao = int(input("\nEscolha uma opção: "))
     except ValueError:
         print("❌ Opção inválida. Digite um número.")
+        input("\nPressione ENTER para tentar novamente...")
         continue
+        
     if opcao == 1:
         add_evento()
     elif opcao == 2:
@@ -424,7 +480,11 @@ while True:
     elif opcao == 7:
         listar_todos_eventos()
     elif opcao == 0:
+        limpar_tela()
         print("Saindo... Obrigado por usar o Check Event! 👋")
         break
     else:
         print("❌ Opção inválida. Por favor, escolha um número entre 0 e 7.")
+        
+    if opcao != 0 and opcao != 4: 
+        input("\nPressione ENTER para voltar ao menu...")
