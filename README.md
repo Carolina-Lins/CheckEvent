@@ -1,4 +1,4 @@
-# <img src="https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Objects/Calendar.png" alt="Calendar" width="25" height="25" /> CheckEvent 
+# <img src="https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Objects/Calendar.png" alt="Calendar" width="25" height="25" /> CheckEvent - Sistema de Gestão de Eventos
 
 O **CheckEvent** é uma ferramenta de linha de comando desenvolvida em Python para auxiliar no planejamento, controle e execução de eventos de forma prática e organizada. O sistema foi projetado para ajudar organizadores a manterem seus eventos estritamente dentro do prazo e do orçamento previstos.
 
@@ -10,24 +10,48 @@ Este projeto foi desenvolvido como parte dos requisitos avaliativos da disciplin
 
 O sistema conta com os seguintes módulos e recursos principais:
 
-1.**Menu Interativo:** Permite cadastrar evento, buscar evento por ID, por nome do cliente, atualizar dados de um evento, relatório do evento, excluir, listar todos os evento e Sair.
-  Cada evento armazena:
-   * Nome
-   * Tipo (Aniversário, Casamento, Reunião, etc.) 
-   * Data do evento 
-   * Local 
-   * Orçamento disponível
-   * Quantidade de pessoas
-2. **Gerenciamento de Tarefas e Orçamento Integrado:** Cadastro de tarefas específicas (como decoração, buffet, música, etc) vinculando seus respectivos custos. O sistema desconta e atualiza automaticamente o saldo do orçamento do evento. Alerta de Estouro: Se o total gasto ultrapassar o orçamento inicial, o sistema exibe imediatamente um aviso.
-3. **Sugestão Personalizada:** Dica de Cardápio de acordo com o tipo de evento escolhido e a quantidade de pessoas.
-4. **Geração de ID único:** Para garantir que os eventos não se misturem e possam ser encontrados facilmente, o programa gera um ID aleatório de 5 dígitos (entre 10000 e 99999) assim que o cadastro é concluído com sucesso. Esse ID funciona como a "chave de acesso" do evento.
-5. **Contagem Regressiva:** Exibição automatizada de quantos dias faltam para a realização do evento ao visualizá-lo.
-6. **Funcionalidade Extra (Diferencial):**[Inserir aqui a ideia criativa]. 
+#### 1. **Menu Interativo:**
+- Cadastrar evento
+- Buscar evento por ID
+- Buscar evento por nome do cliente
+- Atualizar dados de um evento
+- Relatório financeiro do evento
+- Excluir um evento
+- Listar todos os eventos
+- Sair
+
+#### 2. **Cada evento armazena:**
+- Nome
+- Tipo (Aniversário, Casamento, Reunião, etc.) 
+- Data do evento 
+- Local 
+- Orçamento inicial
+- Orçamento final
+- Quantidade de convidados
+- Serviços contratados
+     
+#### 3. **Gerenciamento de Serviços e Controle de Orçamento Integrado:**
+- Cadastro de tarefas específicas (como decoração, buffet, música, etc) vinculando seus respectivos custos.
+- O sistema desconta e atualiza automaticamente o saldo do orçamento do evento.
+- Alerta sobre estouro de orçamento: Se o total gasto ultrapassar o orçamento inicial, o sistema exibe imediatamente um aviso.
+   
+#### 4. **Sugestões Personalizadas:**
+- Sugestão de Cardápio de acordo com o tipo de evento escolhido e a quantidade de pessoas.
+
+#### 5. **Geração de ID único:**
+- Para garantir que os eventos não se misturem e possam ser encontrados facilmente, o programa gera um ID aleatório de 5 dígitos (entre 10000 e 99999) assim que o cadastro é concluído com sucesso.
+- Esse ID funciona como a "chave de acesso" do evento. Se o usuário não lembrar do ID pode fazer a busca do seu evento pelo nome.
+   
+#### 6. **Contagem Regressiva:** 
+- Exibição automatizada de quantos dias faltam para a realização do evento ao visualizá-lo.
+   
+#### 7. **Funcionalidade Extra:**
+- Relatórios financeiros detalhados, o sistema gera nota fiscal com um resumo completo com custos, saldo restante e custo por convidado.
 ---
 
 ## <img src="https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Objects/Card%20Index%20Dividers.png" alt="Card Index Dividers" width="25" height="25" /> Banco de Dados
 
-Para garantir a persistência das informações e que o histórico de eventos e tarefas nunca seja perdido, todos os dados são salvos de forma estruturada em arquivos locais de texto (`.txt` ou `.csv`), dispensando o uso de bancos de dados externos.
+Todos os dados são armazenados em um arquivo `.txt` local utilizando separadores (`|`) para estruturar as informações, garantindo persistência simples sem uso de banco de dados externo.
 
 ---
 
@@ -36,9 +60,10 @@ Para garantir a persistência das informações e que o histórico de eventos e 
 O projeto foi construído seguindo rigorosamente as diretrizes de desenvolvimento do ecossistema nativo do Python:
 * **Linguagem:** Python 3.x 
 * **Dependências:** Nenhuma biblioteca externa foi utilizada.
-* **Bibliotecas Nativas Permitidas:** * `os` (utilizada estritamente para a limpeza do terminal de forma multiplataforma) 
-  * `datetime` (utilizada para manipulação de datas e cálculo da contagem regressiva) 
-  * random` (utilizada para o motor de sugestões aleatórias personalizadas) 
+* **Bibliotecas Nativas Permitidas:**
+  - `os`
+  - `datetime`
+  - `random`
 * **Interface:** Interação baseada 100% em linha de comando (CLI) via terminal.
 
 ---
