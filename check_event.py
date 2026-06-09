@@ -32,7 +32,7 @@ def carregar_dados():
                 linha = linha.strip() 
                 if not linha:
                     continue 
-
+                
                 partes = linha.split('|')
                 
                 if len(partes) == 9:
@@ -46,10 +46,15 @@ def carregar_dados():
                     convidados = int(partes[7])
                     
                     servicos_str = partes[8]
+                    servicos = {}
                     if servicos_str:
-                        servicos = servicos_str.split(',')
-                    else:
-                        servicos = []
+                        itens = servicos_str.split(',')
+                        for item in itens:
+                            if ':' in item:
+                                s_nome, s_valor = item.split(':')
+                                servicos[s_nome] = float(s_valor)
+                            else:
+                                servicos[item] = 0.0
                         
                     agenda[ident] = {
                         "nome": nome,
@@ -65,10 +70,8 @@ def carregar_dados():
 def salvar_dados():
     with open(ARQUIVO_TXT, 'w', encoding='utf-8') as arquivo:
         for ident, e in agenda.items():
-            servicos_str = ",".join(e['servicos'])
-            
+            servicos_str = ",".join([f"{k}:{v}" for k, v in e['servicos'].items()])
             linha = f"{ident}|{e['nome']}|{e['evento']}|{e['data']}|{e['local']}|{e['orcamento']}|{e['orcamento_final']}|{e['convidados']}|{servicos_str}\n"
-            
             arquivo.write(linha)
 
 def gerar_id():
@@ -88,7 +91,7 @@ def calcular_orcamento(servico, orcamento_final):
             if novo_orcamento <= 0:
                 print(" ⚠️ Atenção: Orçamento excedido ou no limite!")
 
-            return novo_orcamento
+            return novo_orcamento, valor_servico
 
         except ValueError:
             print("Entrada inválida! Por favor, digite apenas números (ex: 150.50 ou 150,50).")
@@ -113,70 +116,102 @@ def sugestoes_eventos(evento, convidados):
 
 def add_evento():
     limpar_tela()
-    servicos = []
+    servicos = {}
     
     while True:
         nome = input("Digite seu nome: ")
-        
         if nome.replace(" ", "").isalpha():
             nome = nome.capitalize()
             break
         else:
             print("❌ Erro: O nome não pode conter números ou símbolos. Digite apenas letras.")
 
-    evento_num = int(input(f"Olá, {nome}, informe o tipo de evento que deseja realizar:\n1. Casamento\n2. Aniversário\n3. Confraternização\n4. Reunião\n5. Formatura\n6. Outro\n=> "))
-    if evento_num not in opcoes_eventos:
-        print("Opção inválida.")
-        return
-    elif evento_num == 6:
-        evento = input("Digite o nome do seu evento: ")
-    else:
-        evento = opcoes_eventos[evento_num]
+    while True:
+        try:
+            evento_num = int(input(f"Olá, {nome}, informe o tipo de evento que deseja realizar:\n1. Casamento\n2. Aniversário\n3. Confraternização\n4. Reunião\n5. Formatura\n6. Outro\n=> "))
+            if evento_num not in opcoes_eventos:
+                print("❌ Opção inválida. Escolha um número de 1 a 6.")
+                continue
+            
+            if evento_num == 6:
+                while True:
+                    evento = input("Digite o nome do seu evento: ")
+                    if not any(char.isdigit() for char in evento): 
+                        break
+                    print("❌ Erro: O nome do evento não pode conter números.")
+                break
+            else:
+                evento = opcoes_eventos[evento_num]
+                break
+        except ValueError:
+            print("❌ Erro: Digite apenas o número correspondente à opção.")
 
-    data_str = input(f"{nome}, informe a data do {evento} (DD/MM/AAAA): ")
-    
-    try:
-        evento_data = datetime.strptime(data_str, "%d/%m/%Y").date()
-        hoje = datetime.now().date()
+    while True:
+        data_str = input(f"{nome}, informe a data do {evento} (DD/MM/AAAA): ")
+        try:
+            evento_data = datetime.strptime(data_str, "%d/%m/%Y").date()
+            hoje = datetime.now().date()
 
-        if evento_data < hoje:
-            confirma_data = input("A data do evento já passou, deseja continuar mesmo assim? S/N: ").upper()
-            if confirma_data != 'S':
-                print("❌ Operação cancelada")
-                return
-    except ValueError:
-        print("❌ O formato de data não é válido! Operação Cancelada.")
-        return
+            if evento_data < hoje:
+                confirma_data = input("A data do evento já passou, deseja continuar mesmo assim? (S/N): ").upper()
+                if confirma_data != 'S':
+                    print("Por favor, informe a data novamente.")
+                    continue 
+            break 
+        except ValueError:
+            print("❌ O formato de data não é válido! Tente novamente no padrão DD/MM/AAAA.")
 
-    local = input(f"{nome}, informe o local do {evento}: ").lower()
+    while True:
+        local = input(f"{nome}, informe o local do {evento} (sem números): ").lower()
+        if not any(char.isdigit() for char in local):
+            break
+        print("❌ Erro: O nome do local não pode conter números. Digite apenas o nome do espaço.")
+
     while True:
         try:
             orcamento1 = float(input(f"{nome}, informe o orçamento disponível para o {evento}: R$ "))
-            break
+            if orcamento1 > 0:
+                break
+            print("❌ O orçamento deve ser maior que zero.")
         except ValueError:
-            print("Entrada inválida! Por favor, digite apenas números (use ponto para centavos, ex: 1500.50).")
+            print("❌ Entrada inválida! Por favor, digite apenas números (use ponto para centavos).")
 
-    convidados = int(input(f"{nome}, informe quantos convidados haverá no {evento}: "))
+    while True:
+        try:
+            convidados = int(input(f"{nome}, informe quantos convidados haverá no {evento}: "))
+            if convidados > 0:
+                break
+            print("❌ A quantidade de convidados deve ser maior que zero.")
+        except ValueError:
+            print("❌ Erro: Digite apenas números inteiros para os convidados.")
+            
     orcamento_final = orcamento1
-
     sugestoes_eventos(evento, convidados)
 
     while True:
-        servico_num = int(input(f"\nDigite qual serviço deseja para o {evento}:\n1. Buffet\n2. Banda\n3. Iluminação\n4. Ornamentação\n5. Segurança\n6. Doces e Bolos\n7. Serviços Gráficos\n8. Veículos\n9. Make\n10. Foto e Filmagem\n11. Cerimonial\n12. Outros\nOu '0' para FINALIZAR\n=> "))
+        try:
+            servico_num = int(input(f"\nDigite qual serviço deseja para o {evento}:\n1. Buffet\n2. Banda\n3. Iluminação\n4. Ornamentação\n5. Segurança\n6. Doces e Bolos\n7. Serviços Gráficos\n8. Veículos\n9. Make\n10. Foto e Filmagem\n11. Cerimonial\n12. Outros\nOu '0' para FINALIZAR\n=> "))
+        except ValueError:
+            print("❌ Opção inválida. Digite apenas o número do serviço.")
+            continue
 
         if servico_num == 12:
-            servico = input("Digite o nome do serviço que deseja: ")
-            servicos.append(servico)
-            orcamento_final = calcular_orcamento(servico, orcamento_final)
+            while True:
+                servico = input("Digite o nome do serviço que deseja: ")
+                if not any(char.isdigit() for char in servico):
+                    break
+                print("❌ Erro: O nome não pode conter números.")
+            
+            orcamento_final, valor = calcular_orcamento(servico, orcamento_final)
+            servicos[servico] = valor
 
         elif servico_num == 0:
             break
 
         elif servico_num in opcoes_servicos:
             servico_nome = opcoes_servicos[servico_num]
-            servicos.append(servico_nome)
-            orcamento_final = calcular_orcamento(servico_nome, orcamento_final)
-
+            orcamento_final, valor = calcular_orcamento(servico_nome, orcamento_final)
+            servicos[servico_nome] = valor
         else:
             print("Opção inválida, tente novamente.")
 
@@ -238,10 +273,15 @@ def buscar_evento():
                 print(" ⚠️ Não foi possível calcular os dias restantes. Formato de data inválido.")
                 
             print(f"Local: {e['local']}")
-            print(f"Orçamento: R$ {e['orcamento']:.2f}")
-            print(f"Orçamento Final: R$ {e['orcamento_final']:.2f}")
+            print(f"Orçamento Inicial: R$ {e['orcamento']:.2f}")
+            print(f"Orçamento Restante: R$ {e['orcamento_final']:.2f}")
             print(f"Convidados: {e['convidados']}")
-            print(f"Serviços: {', '.join(e['servicos']) if e['servicos'] else 'Nenhum serviço selecionado'}")
+            
+            if e['servicos']:
+                servicos_formatados = ", ".join([f"{k} (R$ {v:.2f})" for k, v in e['servicos'].items()])
+                print(f"Serviços: {servicos_formatados}")
+            else:
+                print("Serviços: Nenhum serviço selecionado")
             
             break 
         else:
@@ -281,7 +321,7 @@ def update_evento():
     try:
         ident = int(input("Digite o ID do evento que deseja atualizar: "))
     except ValueError:
-        print("ID inválido.")
+        print("❌ ID inválido. Digite apenas números.")
         return
 
     if ident in agenda:
@@ -289,55 +329,204 @@ def update_evento():
         
         while True:
             limpar_tela()
-            print(f"\n--- 📝 Editando o evento de {e['nome']} ({e['evento']}) ---")
-            print("O que você deseja alterar?")
+            print(f"\n--- 📝 EDITANDO O EVENTO DE {e['nome'].upper()} ---")
+            print(f"💰 Orçamento Restante Atual: R$ {e['orcamento_final']:.2f}")
+            
+            print("\nO que você deseja alterar?")
             print("1. Alterar Data")
             print("2. Alterar Local")
             print("3. Alterar Quantidade de Convidados")
+            print("4. ADICIONAR Novo Serviço")
+            print("5. EDITAR Valor de um Serviço Específico")
+            print("6. EXCLUIR um Serviço Específico")
+            print("7. Alterar Orçamento Inicial Total")
+            print("8. Resetar TODOS os Serviços (Limpa a lista e devolve o dinheiro)")
             print("0. Finalizar alterações e Sair")
             
             try:
                 opcao_update = int(input("\nEscolha uma opção: "))
             except ValueError:
-                print("Opção inválida.")
+                print("❌ Opção inválida. Digite um número.")
                 input("\nPressione ENTER para tentar novamente...")
                 continue
             
             if opcao_update == 1:
-                nova_data = input(f"Nova data (Data atual: {e['data']}) (DD/MM/AAAA): ")
-                try:
-                    datetime.strptime(nova_data, "%d/%m/%Y")
-                    e['data'] = nova_data
-                    print("Data atualizada com sucesso!")
-                except ValueError:
-                    print("Formato de data inválido! A data não foi alterada.")
+                while True:
+                    nova_data = input(f"Nova data (Atual: {e['data']}) (DD/MM/AAAA) ou '0' para cancelar: ")
+                    if nova_data == '0':
+                        break
+                    try:
+                        datetime.strptime(nova_data, "%d/%m/%Y")
+                        e['data'] = nova_data
+                        print("✅ Data atualizada com sucesso!")
+                        break 
+                    except ValueError:
+                        print("❌ Formato de data inválido! Tente no padrão DD/MM/AAAA.")
                 input("\nPressione ENTER para continuar...")
                     
             elif opcao_update == 2:
-                novo_local = input(f"Novo local (Local atual: {e['local']}): ").lower()
-                e['local'] = novo_local
-                print("Local atualizado com sucesso!")
+                while True:
+                    novo_local = input(f"Novo local (Atual: {e['local']}) ou '0' para cancelar: ").lower()
+                    if novo_local == '0':
+                        break
+                    if not any(char.isdigit() for char in novo_local):
+                        e['local'] = novo_local
+                        print("✅ Local atualizado com sucesso!")
+                        break
+                    else:
+                        print("❌ Erro: O nome do local não pode conter números.")
                 input("\nPressione ENTER para continuar...")
                 
             elif opcao_update == 3:
-                try:
-                    novos_convidados = int(input(f"Nova quantidade de convidados (Atual: {e['convidados']}): "))
-                    e['convidados'] = novos_convidados
-                    print("Quantidade de convidados atualizada!")
-                    sugestoes_eventos(e['evento'], novos_convidados)
-                except ValueError:
-                    print("Entrada inválida! Digite apenas números inteiros.")
+                while True:
+                    entrada_convidados = input(f"Nova quantidade (Atual: {e['convidados']}) ou '0' para cancelar: ")
+                    if entrada_convidados == '0':
+                        break
+                    try:
+                        novos_convidados = int(entrada_convidados)
+                        if novos_convidados > 0:
+                            e['convidados'] = novos_convidados
+                            print("✅ Quantidade de convidados atualizada!")
+                            sugestoes_eventos(e['evento'], novos_convidados)
+                            break
+                        else:
+                            print("❌ A quantidade deve ser maior que zero.")
+                    except ValueError:
+                        print("❌ Entrada inválida! Digite apenas números inteiros.")
                 input("\nPressione ENTER para continuar...")
+                        
+            elif opcao_update == 4:
+                try:
+                    servico_num = int(input(f"\nQual serviço deseja ADICIONAR:\n1. Buffet\n2. Banda\n3. Iluminação\n4. Ornamentação\n5. Segurança\n6. Doces e Bolos\n7. Serviços Gráficos\n8. Veículos\n9. Make\n10. Foto e Filmagem\n11. Cerimonial\n12. Outros\nOu '0' para CANCELAR\n=> "))
+                except ValueError:
+                    print("❌ Opção inválida.")
+                    input("\nPressione ENTER para continuar...")
+                    continue
+
+                if servico_num == 0:
+                    continue
+                elif servico_num == 12:
+                    while True:
+                        servico = input("Digite o nome do serviço que deseja: ")
+                        if not any(char.isdigit() for char in servico):
+                            break
+                        print("❌ Erro: O nome não pode conter números.")
+                    orc_temp, valor = calcular_orcamento(servico, e['orcamento_final'])
+                    e['orcamento_final'] = orc_temp
+                    e['servicos'][servico] = valor
+                elif servico_num in opcoes_servicos:
+                    servico_nome = opcoes_servicos[servico_num]
+                    orc_temp, valor = calcular_orcamento(servico_nome, e['orcamento_final'])
+                    e['orcamento_final'] = orc_temp
+                    e['servicos'][servico_nome] = valor
+                else:
+                    print("❌ Opção inválida.")
+                input("\nPressione ENTER para continuar...")
+            
+            elif opcao_update == 5:
+                if not e['servicos']:
+                    print("❌ Você ainda não adicionou nenhum serviço para poder editar.")
+                    input("\nPressione ENTER para continuar...")
+                    continue
                     
+                lista_serv = list(e['servicos'].keys())
+                print("\n--- EDITAR VALOR DE UM SERVIÇO ---")
+                for i, s_nome in enumerate(lista_serv):
+                    print(f"{i+1}. {s_nome} (Valor atual: R$ {e['servicos'][s_nome]:.2f})")
+                
+                try:
+                    idx = int(input("\nDigite o NÚMERO do serviço para alterar o valor (ou 0 para cancelar): "))
+                    if idx == 0:
+                        continue
+                    if 1 <= idx <= len(lista_serv):
+                        s_nome_escolhido = lista_serv[idx-1]
+                        valor_antigo = e['servicos'][s_nome_escolhido]
+                        
+                        novo_v_str = input(f"Digite o NOVO valor para '{s_nome_escolhido}': R$ ")
+                        novo_v_float = float(novo_v_str.replace(',', '.'))
+                        if novo_v_float >= 0:
+                            e['orcamento_final'] = e['orcamento_final'] + valor_antigo - novo_v_float
+                            e['servicos'][s_nome_escolhido] = novo_v_float
+                            print(f"✅ Valor de '{s_nome_escolhido}' atualizado de R$ {valor_antigo:.2f} para R$ {novo_v_float:.2f}!")
+                            print(f"💰 Novo Orçamento Restante: R$ {e['orcamento_final']:.2f}")
+                        else:
+                            print("❌ O valor não pode ser negativo.")
+                    else:
+                        print("❌ Número inválido.")
+                except ValueError:
+                    print("❌ Entrada inválida. Digite apenas números.")
+                input("\nPressione ENTER para continuar...")
+
+            elif opcao_update == 6:
+                if not e['servicos']:
+                    print("❌ Você não tem nenhum serviço para excluir.")
+                    input("\nPressione ENTER para continuar...")
+                    continue
+                    
+                lista_serv = list(e['servicos'].keys())
+                print("\n--- EXCLUIR APENAS UM SERVIÇO ---")
+                for i, s_nome in enumerate(lista_serv):
+                    print(f"{i+1}. {s_nome} (Valor: R$ {e['servicos'][s_nome]:.2f})")
+                
+                try:
+                    idx = int(input("\nDigite o NÚMERO do serviço que deseja excluir (ou 0 para cancelar): "))
+                    if idx == 0:
+                        continue
+                    if 1 <= idx <= len(lista_serv):
+                        s_nome_escolhido = lista_serv[idx-1]
+                        valor_antigo = e['servicos'][s_nome_escolhido]
+                        
+                        del e['servicos'][s_nome_escolhido]
+                        e['orcamento_final'] += valor_antigo
+                        print(f"✅ Serviço '{s_nome_escolhido}' excluído da lista!")
+                        print(f"💸 O valor de R$ {valor_antigo:.2f} foi devolvido ao seu orçamento.")
+                        print(f"💰 Novo Orçamento Restante: R$ {e['orcamento_final']:.2f}")
+                    else:
+                        print("❌ Número inválido.")
+                except ValueError:
+                    print("❌ Entrada inválida. Digite apenas números.")
+                input("\nPressione ENTER para continuar...")
+                        
+            elif opcao_update == 7:
+                while True:
+                    entrada_orc = input(f"Novo Orçamento Inicial (Atual: R$ {e['orcamento']:.2f}) ou '0' para cancelar: R$ ")
+                    if entrada_orc == '0':
+                        break
+                    try:
+                        novo_orcamento = float(entrada_orc.replace(',', '.'))
+                        if novo_orcamento > 0:
+                            diferenca = novo_orcamento - e['orcamento']
+                            e['orcamento'] = novo_orcamento
+                            e['orcamento_final'] += diferenca
+                            print(f"✅ Orçamento inicial atualizado!")
+                            print(f"💰 Novo saldo restante ajustado para: R$ {e['orcamento_final']:.2f}")
+                            break
+                        else:
+                            print("❌ O orçamento deve ser maior que zero.")
+                    except ValueError:
+                        print("❌ Entrada inválida! Digite apenas números.")
+                input("\nPressione ENTER para continuar...")
+            
+            elif opcao_update == 8:
+                print(f"\n⚠️ ATENÇÃO: Isso irá apagar todos os serviços ({len(e['servicos'])}) e restaurar o saldo para R$ {e['orcamento']:.2f}.")
+                confirm = input("Tem certeza que deseja resetar os serviços? (S/N): ").upper()
+                if confirm == 'S':
+                    e['servicos'] = {}
+                    e['orcamento_final'] = e['orcamento']
+                    print("✅ Todos os serviços foram apagados! O saldo foi totalmente restaurado.")
+                else:
+                    print("❌ Operação cancelada.")
+                input("\nPressione ENTER para continuar...")
+
             elif opcao_update == 0:
                 salvar_dados() 
-                print(" Retornando ao menu principal... Alterações salvas!")
+                print("💾 Retornando ao menu principal... Alterações salvas!")
                 break
             else:
-                print("Opção inválida.")
+                print("❌ Opção inválida.")
                 input("\nPressione ENTER para tentar novamente...")
     else:
-        print("ID não encontrado.")
+        print("❌ ID não encontrado no sistema.")
 
 def gerar_relatorio_financeiro():
     limpar_tela()
@@ -375,8 +564,9 @@ def gerar_relatorio_financeiro():
         print("-" * 45)
         
         if e['servicos']:
-            for servico in e['servicos']:
-                print(f" * {servico:<41}")
+            for s_nome, s_valor in e['servicos'].items():
+                linha_servico = f"{s_nome} (R$ {s_valor:.2f})"
+                print(f" * {linha_servico:<41}")
         else:
             print(f"{'(Nenhum serviço contratado)':^45}")
             
@@ -438,7 +628,13 @@ def buscar_evento_por_nome():
             print(f"Orçamento Inicial: R$ {e['orcamento']:.2f}")
             print(f"Orçamento Restante: R$ {e['orcamento_final']:.2f}")
             print(f"Convidados: {e['convidados']}")
-            print(f"Serviços: {', '.join(e['servicos']) if e['servicos'] else 'Nenhum serviço selecionado'}")
+            
+            if e['servicos']:
+                servicos_formatados = ", ".join([f"{k} (R$ {v:.2f})" for k, v in e['servicos'].items()])
+                print(f"Serviços: {servicos_formatados}")
+            else:
+                print("Serviços: Nenhum serviço selecionado")
+            
             print("-" * 30)
 
     if not encontrou:
